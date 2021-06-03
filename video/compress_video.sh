@@ -5,10 +5,10 @@ output_dir="out"
 mkdir -p ${output_dir}
 count=0
 
-if [ -f "./${output_dir}/${log_name}" ];then
-	rm "./${output_dir}/${log_name}"
+if [ -f "$PWD/${output_dir}/${log_name}" ];then
+	rm "$PWD/${output_dir}/${log_name}"
 fi
-touch "./${output_dir}/${log_name}"
+touch "$PWD/${output_dir}/${log_name}"
 
 for filename in *.mp4
 do
@@ -16,8 +16,8 @@ do
 	cut1=$(ffmpeg -i "$filename" 2>&1 | grep 'bitrate')
 	cut2=${cut1#*bitrate: }
 	cutres=${cut2% *}
-	output="./${output_dir}/$filename"
-	input="$filename"
+	output="$PWD/${output_dir}/$filename"
+	input="$PWD/$filename"
 	bitrate=${base_bitrate}
 	if [ $cutres -gt $base_bitrate ];then
 	        if [ $cutres -gt $[$base_bitrate*2] ];then
@@ -36,12 +36,12 @@ do
 	if [ $cutres -gt $base_bitrate ];then
 	echo "大于${base_bitrate}k, 开始压缩视频..."
 	echo "码率: ${cutres}k -> ${bitrate}k"
-	echo "${filename}: ${cutres}k -> ${bitrate}k" >> "./${output_dir}/$log_name"
+	echo "${filename}: ${cutres}k -> ${bitrate}k" >> "$PWD/${output_dir}/$log_name"
 	ffpb -i "$input" -b:v ${bitrate}k "$output"
 	echo
 	else
 	echo "低于${base_bitrate}k, 无需压缩, 默认跳过..."
-	echo "${filename}: ${cutres}k (已跳过)" >> "./${output_dir}/$log_name"
+	echo "${filename}: ${cutres}k (已跳过)" >> "$PWD/${output_dir}/$log_name"
 	echo
 	fi
 done
