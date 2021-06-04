@@ -49,7 +49,7 @@ function compressVideo(){
 	echo "第$TASK_COUNT个视频处理任务"
 	echo "输入文件名: ${filename##*/}"
 	echo "输出文件名: ${cutfile%.*}.${OUTPUT_FORMAT}"
-	echo "输出位置: ${filedir}"
+	echo "输出位置: ${filedir}/${OUT_DIR}"
 	echo "视频码率: ${cutres}k"
 	if [[ $cutres -gt $TARGET_BITRATE ]];then
 		echo "大于${TARGET_BITRATE}k, 开始压缩视频..."
