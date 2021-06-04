@@ -26,11 +26,6 @@ function compressVideo(){
 	cd "$filedir"
 	mkdir -p "$filedir/${OUT_DIR}"
 
-	if [[ -f "$filedir/${OUT_DIR}/${LOG_NAME}" ]];then
-		rm "$filedir/${OUT_DIR}/${LOG_NAME}"
-	fi
-	touch "$filedir/${OUT_DIR}/${LOG_NAME}"
-
 	TASK_COUNT=$[$TASK_COUNT+1]
 	cut1=$(ffmpeg -i "$filename" 2>&1 | grep 'bitrate')
 	cut2=${cut1#*bitrate: }
