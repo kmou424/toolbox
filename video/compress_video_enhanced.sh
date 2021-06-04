@@ -80,7 +80,7 @@ for format in ${INPUT_FORMAT_ARR[@]}
 do
 	if [[ "$(find $PWD -name "$format")" ]];then
 		if [[ -n $FILE_LIST ]];then
-			FILE_LIST="$FILE_LIST\n$(find $PWD -name "$format")"
+			FILE_LIST="$FILE_LIST|$(find $PWD -name "$format")"
 		else
 			FILE_LIST="$(find $PWD -name "$format")"
 		fi
@@ -89,7 +89,7 @@ done
 
 ### begin compress video ###
 OLDIFS=$IFS
-IFS=$'\n'
+IFS="|"
 for filename in $FILE_LIST
 do
 	compressVideo "$filename"
