@@ -44,10 +44,10 @@ function compressImage(){
 	echo "输入文件名: ${filename}"
 	echo "输出文件名: ${cutfile%.*}.${OUTPUT_FORMAT}"
 	echo "输出位置: ${filedir}/${OUT_DIR}"
-	echo "输入文件大小: $(getSize "${filename}")"
+	echo "输入文件大小: $(getSize "${input}")"
 	ffmpeg -i "$input" -q:v ${quality} "$output" -loglevel quiet -stats
-	echo "输出文件大小: $(getSize "${OUT_DIR}/${filename}")"
-	echo "${filename}: $(getSize "${filename}") -> $(getSize "${OUT_DIR}/${filename}")" >> "$filedir/${OUT_DIR}/$LOG_NAME"
+	echo "输出文件大小: $(getSize "${output}")"
+	echo "${filename}: $(getSize "${input}") -> $(getSize "${output}")" >> "$filedir/${OUT_DIR}/$LOG_NAME"
 
 	cd "$WORKDIR"
 }
@@ -65,13 +65,16 @@ INPUT_FORMAT_ARR=(`echo $INPUT_FORMAT_LIST | sed 's/ //g' | tr '|' ' '`)
 for format in ${INPUT_FORMAT_ARR[@]}
 do
 	if [[ "$(find $PWD -name "$format")" ]];then
-		if [[ -n $FILE_LIST ]];then
-			FILE_LIST="$FILE_LIST|$(find $PWD -name "$format")"
-		else
-			FILE_LIST="$(find $PWD -name "$format")"
-		fi
+		find $PWD -name "$format" | while read -r line
+		do
+			echo -n "${line}|" >> "toolbox_image_tmp1"
+		done
 	fi
 done
+
+FILE_LIST="$(cat toolbox_image_tmp1)"
+FILE_LIST="${FILE_LIST%|*}"
+rm "toolbox_image_tmp1"
 
 ### begin compress image ###
 OLDIFS=$IFS
