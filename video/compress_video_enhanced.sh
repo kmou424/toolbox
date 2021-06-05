@@ -63,11 +63,26 @@ function compressVideo(){
 	cd "$WORKDIR"
 }
 
+function tmpInit(){
+	if [ ! -d $TMP1 ];then
+		touch $TMP1
+	fi
+}
+
+function tmpClean(){
+	if [ -d $TMP1 ];then
+		rm $TMP1
+	fi
+}
+
 ### exec function ###
 loadConf
 
 WORKDIR=$PWD
 TASK_COUNT=0
+TMP1="toolbox_image_tmp1"
+
+tmpInit
 
 INPUT_FORMAT_LIST="*.$(echo $INPUT_FORMAT | sed 's/|/|*./g')"
 INPUT_FORMAT_ARR=(`echo $INPUT_FORMAT_LIST | sed 's/ //g' | tr '|' ' '`)
@@ -78,14 +93,13 @@ do
 	if [[ "$(find $PWD -name "$format")" ]];then
 		find $PWD -name "$format" | while read -r line
 		do
-			echo -n "${line}|" >> "toolbox_video_tmp1"
+			echo -n "${line}|" >> $TMP1
 		done
 	fi
 done
 
-FILE_LIST="$(cat toolbox_video_tmp1)"
+FILE_LIST="$(cat $TMP1)"
 FILE_LIST="${FILE_LIST%|*}"
-rm "toolbox_video_tmp1"
 
 ### begin compress video ###
 OLDIFS=$IFS
@@ -95,5 +109,7 @@ do
 	compressVideo "$filename"
 done
 echo
+
+tmpClean
 
 IFS=$OLDIFS
