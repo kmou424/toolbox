@@ -40,7 +40,7 @@ function compressImage(){
 
 	echo
 	echo "当前工作路径: $filedir"
-	echo "第$TASK_COUNT个视频处理任务"
+	echo "第$TASK_COUNT个图片处理任务"
 	echo "输入文件名: ${filename}"
 	echo "输出文件名: ${cutfile%.*}.${OUTPUT_FORMAT}"
 	echo "输出位置: ${filedir}/${OUT_DIR}"
