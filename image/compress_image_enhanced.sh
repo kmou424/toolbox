@@ -53,13 +53,13 @@ function compressImage(){
 }
 
 function tmpInit(){
-	if [ ! -d $TMP1 ];then
+	if [ ! -f $TMP1 ];then
 		touch $TMP1
 	fi
 }
 
 function tmpClean(){
-	if [ -d $TMP1 ];then
+	if [ -f $TMP1 ];then
 		rm $TMP1
 	fi
 }
@@ -71,16 +71,16 @@ WORKDIR=$PWD
 TASK_COUNT=0
 TMP1="toolbox_image_tmp1"
 
+tmpClean
 tmpInit
 
-INPUT_FORMAT_LIST="*.$(echo $INPUT_FORMAT | sed 's/|/|*./g')"
-INPUT_FORMAT_ARR=(`echo $INPUT_FORMAT_LIST | sed 's/ //g' | tr '|' ' '`)
+INPUT_FORMAT_ARR=(`echo $INPUT_FORMAT | sed 's/ //g' | tr '|' ' '`)
 
 ### find target image path ###
 for format in ${INPUT_FORMAT_ARR[@]}
 do
-	if [[ "$(find $PWD -name "$format")" ]];then
-		find $PWD -name "$format" | while read -r line
+	if [[ "$(find $PWD -name "*.$format")" ]];then
+		find $PWD -name "*.$format" | while read -r line
 		do
 			echo -n "${line}|" >> $TMP1
 		done
