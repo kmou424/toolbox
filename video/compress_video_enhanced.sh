@@ -2,7 +2,7 @@ function createConf(){
 echo $'TARGET_BITRATE="3000"
 INPUT_FORMAT="mp4|mov"
 OUTPUT_FORMAT="mp4"
-LOG_NAME="log.txt"
+LOG_NAME="log_video.txt"
 OUT_DIR="out"' >> "$1"
 }
 
@@ -10,7 +10,7 @@ function loadConf(){
 	TARGET_BITRATE="3000"
 	INPUT_FORMAT="mp4|mov"
 	OUTPUT_FORMAT="mp4"
-	LOG_NAME="log.txt"
+	LOG_NAME="log_video.txt"
 	OUT_DIR="out"
 	if [[ -f "$PWD/toolbox_video.conf" ]];then
 			. "$PWD/toolbox_video.conf"

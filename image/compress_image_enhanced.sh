@@ -2,7 +2,7 @@ function createConf(){
 echo $'TARGET_QUALITY="2"
 INPUT_FORMAT="jpg|png"
 OUTPUT_FORMAT="jpg"
-LOG_NAME="log.txt"
+LOG_NAME="log_image.txt"
 OUT_DIR="out"' >> "$1"
 }
 
@@ -10,7 +10,7 @@ function loadConf(){
 	TARGET_QUALITY="2"
 	INPUT_FORMAT="jpg|png"
 	OUTPUT_FORMAT="jpg"
-	LOG_NAME="log.txt"
+	LOG_NAME="log_image.txt"
 	OUT_DIR="out"
 	if [[ -f "$PWD/toolbox_image.conf" ]];then
 			. "$PWD/toolbox_image.conf"

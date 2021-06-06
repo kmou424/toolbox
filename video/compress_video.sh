@@ -1,5 +1,5 @@
 base_bitrate="3000"
-log_name="log.txt"
+log_name="log_video.txt"
 output_dir="out"
 
 mkdir -p ${output_dir}
