@@ -88,6 +88,8 @@ tmpInit
 INPUT_FORMAT_ARR=(`echo $INPUT_FORMAT | sed 's/ //g' | tr '|' ' '`)
 
 ### find target video path ###
+OLDIFS=$IFS
+IFS="|"
 for format in ${INPUT_FORMAT_ARR[@]}
 do
 	if [[ "$(find $PWD -name "*.$format")" ]];then
@@ -102,8 +104,6 @@ FILE_LIST="$(cat $TMP1)"
 FILE_LIST="${FILE_LIST%|*}"
 
 ### begin compress video ###
-OLDIFS=$IFS
-IFS="|"
 for filename in $FILE_LIST
 do
 	compressVideo "$filename"
