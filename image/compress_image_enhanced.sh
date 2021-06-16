@@ -84,6 +84,8 @@ tmpInit
 INPUT_FORMAT_ARR=(`echo $INPUT_FORMAT | sed 's/ //g' | tr '|' ' '`)
 
 ### find target image path ###
+OLDIFS=$IFS
+IFS="|"
 for format in ${INPUT_FORMAT_ARR[@]}
 do
 	if [[ "$(find $PWD -name "*.$format")" ]];then
@@ -98,8 +100,6 @@ FILE_LIST="$(cat $TMP1)"
 FILE_LIST="${FILE_LIST%|*}"
 
 ### begin compress image ###
-OLDIFS=$IFS
-IFS="|"
 for filepath in $FILE_LIST
 do
 	compressImage "$filepath"
