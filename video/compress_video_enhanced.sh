@@ -1,6 +1,7 @@
 function createConf(){
 echo $'TARGET_BITRATE="3000"
 TARGET_FRAMERATE="30"
+TARGET_ZOOM_RATIO="disable"
 INPUT_FORMAT="mp4|mov"
 OUTPUT_FORMAT="mp4"
 LOG_NAME="log_video.txt"
@@ -10,6 +11,7 @@ OUT_DIR="out"' >> "$1"
 function loadConf(){
 	TARGET_BITRATE="3000"
 	TARGET_FRAMERATE="30"
+	TARGET_ZOOM_RATIO="disable"
 	INPUT_FORMAT="mp4|mov"
 	OUTPUT_FORMAT="mp4"
 	LOG_NAME="log_video.txt"
@@ -29,6 +31,21 @@ function compressVideo(){
 	mkdir -p "$filedir/${OUT_DIR}"
 
 	TASK_COUNT=$[$TASK_COUNT+1]
+
+	if [ "$TARGET_ZOOM_RATIO" != "disable" ];then
+		if [ -n "$(echo $TARGET_ZOOM_RATIO | sed 's/\.//g' | sed 's/\///g' | sed -n "/^[0-9]\+$/p")" ];then
+			if [ $(echo "$TARGET_ZOOM_RATIO > 1.0" | bc) -eq 1 ];then
+				echo "错误: 指定的缩放比例大于1.0，视频分辨率将会出现异常"
+				exit 1
+			fi
+		else
+			echo "错误: 指定的缩放比例不是数字"
+			exit 1
+		fi
+	else
+		TARGET_ZOOM_RATIO="1.0"
+	fi
+
 	cut1=$(ffmpeg -i "$filename" 2>&1 | grep 'bitrate')
 	cut2=${cut1#*bitrate: }
 	cutres=${cut2% *}
@@ -54,11 +71,12 @@ function compressVideo(){
 	echo "输出位置: ${filedir}/${OUT_DIR}"
 	echo "视频码率: ${cutres}k"
 	echo "视频帧率: ${TARGET_FRAMERATE}fps"
+	echo "缩放比例: ${TARGET_ZOOM_RATIO}"
 	if [[ $cutres -gt $TARGET_BITRATE ]];then
 		echo "大于${TARGET_BITRATE}k, 开始压缩视频..."
 		echo "码率: ${cutres}k -> ${bitrate}k"
-		echo "${filename##*/}: ${cutres}k -> ${bitrate}k" >> "$filedir/${OUT_DIR}/$LOG_NAME"
-		ffpb -i "$input" -b:v ${bitrate}k -r ${TARGET_FRAMERATE} "$output"
+		echo "${filename##*/}: ${cutres}k -> ${bitrate}k; Zoom: ${TARGET_ZOOM_RATIO}" >> "$filedir/${OUT_DIR}/$LOG_NAME"
+		ffpb -i "$input" -b:v ${bitrate}k -r ${TARGET_FRAMERATE} -vf "scale=iw*${TARGET_ZOOM_RATIO}:ih*${TARGET_ZOOM_RATIO}" "$output"
 	else
 		echo "低于${TARGET_BITRATE}k, 无需压缩, 默认跳过..."
 		echo "${filename##*/}: ${cutres}k (已跳过)" >> "$filedir/${OUT_DIR}/$LOG_NAME"
