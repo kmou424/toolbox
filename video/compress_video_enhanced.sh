@@ -1,6 +1,6 @@
 function createConf(){
 echo $'TARGET_BITRATE="3000"
-TARGET_FRAMERATE="30"
+TARGET_FRAMERATE="disable"
 TARGET_ZOOM_RATIO="disable"
 INPUT_FORMAT="mp4|mov"
 OUTPUT_FORMAT="mp4"
@@ -10,7 +10,7 @@ OUT_DIR="out"' >> "$1"
 
 function loadConf(){
 	TARGET_BITRATE="3000"
-	TARGET_FRAMERATE="30"
+	TARGET_FRAMERATE="disable"
 	TARGET_ZOOM_RATIO="disable"
 	INPUT_FORMAT="mp4|mov"
 	OUTPUT_FORMAT="mp4"
@@ -46,6 +46,11 @@ function compressVideo(){
 		TARGET_ZOOM_RATIO="1.0"
 	fi
 
+	ORI_FRAMWRATE=$(mediainfo --Output="Video;%FrameRate%" ${filename})
+	if [ "$TARGET_FRAMERATE" == "disable" ];then
+		TARGET_FRAMERATE="$ORI_FRAMWRATE"
+	fi
+
 	cut1=$(ffmpeg -i "$filename" 2>&1 | grep 'bitrate')
 	cut2=${cut1#*bitrate: }
 	cutres=${cut2% *}
@@ -75,7 +80,7 @@ function compressVideo(){
 	if [[ $cutres -gt $TARGET_BITRATE ]];then
 		echo "大于${TARGET_BITRATE}k, 开始压缩视频..."
 		echo "码率: ${cutres}k -> ${bitrate}k"
-		echo "${filename##*/}: ${cutres}k -> ${bitrate}k; Zoom: ${TARGET_ZOOM_RATIO}" >> "$filedir/${OUT_DIR}/$LOG_NAME"
+		echo "${filename##*/}: ${cutres}k -> ${bitrate}k; Framerate: ${ORI_FRAMWRATE} -> ${TARGET_FRAMERATE}; Zoom: ${TARGET_ZOOM_RATIO}" >> "$filedir/${OUT_DIR}/$LOG_NAME"
 		ffpb -i "$input" -b:v ${bitrate}k -r ${TARGET_FRAMERATE} -vf "scale=iw*${TARGET_ZOOM_RATIO}:ih*${TARGET_ZOOM_RATIO}" "$output"
 	else
 		echo "低于${TARGET_BITRATE}k, 无需压缩, 默认跳过..."
