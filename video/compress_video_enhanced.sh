@@ -1,5 +1,5 @@
 function createConf(){
-echo $'TARGET_BITRATE="3000"
+echo $'TARGET_BITRATE="2500"
 TARGET_FRAMERATE="disable"
 TARGET_ZOOM_RATIO="disable"
 INPUT_FORMAT="mp4|mov"
@@ -9,7 +9,7 @@ OUT_DIR="out"' >> "$1"
 }
 
 function loadConf(){
-	TARGET_BITRATE="3000"
+	TARGET_BITRATE="2500"
 	TARGET_FRAMERATE="disable"
 	TARGET_ZOOM_RATIO="disable"
 	INPUT_FORMAT="mp4|mov"
