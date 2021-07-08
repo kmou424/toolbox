@@ -2,6 +2,7 @@ function createConf(){
 echo $'TARGET_BITRATE="2500"
 TARGET_FRAMERATE="disable"
 TARGET_ZOOM_RATIO="disable"
+TARGET_QUALITY="disable"
 INPUT_FORMAT="mp4|mov"
 OUTPUT_FORMAT="mp4"
 LOG_NAME="log_video.txt"
@@ -12,6 +13,7 @@ function loadConf(){
 	TARGET_BITRATE="2500"
 	TARGET_FRAMERATE="disable"
 	TARGET_ZOOM_RATIO="disable"
+	TARGET_QUALITY="disable"
 	INPUT_FORMAT="mp4|mov"
 	OUTPUT_FORMAT="mp4"
 	LOG_NAME="log_video.txt"
@@ -32,21 +34,88 @@ function compressVideo(){
 
 	TASK_COUNT=$[$TASK_COUNT+1]
 
+	ORI_WIDTH=$(mediainfo --Output="Video;%Width%" ${filename})
+	ORI_HEIGHT=$(mediainfo --Output="Video;%Height%" ${filename})
+	ORI_FRAMWRATE=$(mediainfo --Output="Video;%FrameRate%" ${filename})
+
+	if [ "$TARGET_ZOOM_RATIO" != "disable" ] && [ "$TARGET_QUALITY" != "disable" ];then
+		echo "错误: 不能同时开启缩放比例(TARGET_ZOOM_RATIO)和画质(TARGET_QUALITY)功能"
+		exit 1
+	else
+		TARGET_WIDTH=$ORI_WIDTH
+		TARGET_HEIGHT=$ORI_HEIGHT
+	fi
+
 	if [ "$TARGET_ZOOM_RATIO" != "disable" ];then
 		if [ -n "$(echo $TARGET_ZOOM_RATIO | sed 's/\.//g' | sed 's/\///g' | sed -n "/^[0-9]\+$/p")" ];then
 			if [ $(echo "$TARGET_ZOOM_RATIO > 1.0" | bc) -eq 1 ];then
 				echo "错误: 指定的缩放比例大于1.0，视频分辨率将会出现异常"
 				exit 1
 			fi
+			TARGET_WIDTH="iw*${TARGET_ZOOM_RATIO}"
+			TARGET_HEIGHT="ih*${TARGET_ZOOM_RATIO}"
 		else
 			echo "错误: 指定的缩放比例不是数字"
 			exit 1
 		fi
 	else
-		TARGET_ZOOM_RATIO="1.0"
+		TARGET_ZOOM_RATIO_MSG="未指定"
 	fi
 
-	ORI_FRAMWRATE=$(mediainfo --Output="Video;%FrameRate%" ${filename})
+	if [ "$TARGET_QUALITY" != "disable" ];then
+		if [ $ORI_HEIGHT -gt $ORI_WIDTH ];then
+			ORI_RESOLUTION=$ORI_WIDTH
+			RESOLUTION="width"
+		else
+			ORI_RESOLUTION=$ORI_HEIGHT
+			RESOLUTION="height"
+		fi
+		case $TARGET_QUALITY in
+		 sd|SD|480p|480P)
+			if [ $ORI_RESOLUTION -gt 480 ];then
+				if [ $RESOLUTION == "width" ];then
+					TARGET_WIDTH="480"
+					TARGET_HEIGHT="-1"
+				else
+					TARGET_WIDTH="-1"
+					TARGET_HEIGHT="480"
+				fi
+			fi
+			TARGET_QUALITY_MSG="标清(480P)"
+			;;
+		 hd|HD|720p|720P)
+			if [ $ORI_RESOLUTION -gt 720 ];then
+				if [ $RESOLUTION == "width" ];then
+					TARGET_WIDTH="720"
+					TARGET_HEIGHT="-1"
+				else
+					TARGET_WIDTH="-1"
+					TARGET_HEIGHT="720"
+				fi
+			fi
+			TARGET_QUALITY_MSG="高清(720P)"
+			;;
+		 uhd|UHD|1080p|1080P)
+			if [ $ORI_RESOLUTION -gt 1080 ];then
+				if [ $RESOLUTION == "width" ];then
+					TARGET_WIDTH="1080"
+					TARGET_HEIGHT="-1"
+				else
+					TARGET_WIDTH="-1"
+					TARGET_HEIGHT="1080"
+				fi
+			fi
+			TARGET_QUALITY_MSG="超清(1080P)"
+			;;
+		 *)
+			TARGET_WIDTH=$ORI_WIDTH
+			TARGET_HEIGHT=$ORI_HEIGHT
+			;;
+		esac
+	else
+		TARGET_QUALITY_MSG="未指定"
+	fi
+
 	if [ "$TARGET_FRAMERATE" == "disable" ];then
 		TARGET_FRAMERATE="$ORI_FRAMWRATE"
 	fi
@@ -76,12 +145,13 @@ function compressVideo(){
 	echo "输出位置: ${filedir}/${OUT_DIR}"
 	echo "视频码率: ${cutres}k"
 	echo "视频帧率: ${TARGET_FRAMERATE}fps"
-	echo "缩放比例: ${TARGET_ZOOM_RATIO}"
+	echo "缩放比例: ${TARGET_ZOOM_RATIO_MSG}"
+	echo "画质: ${TARGET_QUALITY_MSG}"
 	if [[ $cutres -gt $TARGET_BITRATE ]];then
 		echo "大于${TARGET_BITRATE}k, 开始压缩视频..."
 		echo "码率: ${cutres}k -> ${bitrate}k"
-		echo "${filename##*/}: ${cutres}k -> ${bitrate}k; Framerate: ${ORI_FRAMWRATE} -> ${TARGET_FRAMERATE}; Zoom: ${TARGET_ZOOM_RATIO}" >> "$filedir/${OUT_DIR}/$LOG_NAME"
-		ffpb -i "$input" -b:v ${bitrate}k -r ${TARGET_FRAMERATE} -vf "scale=iw*${TARGET_ZOOM_RATIO}:ih*${TARGET_ZOOM_RATIO}" "$output"
+		echo "${filename##*/}: ${cutres}k -> ${bitrate}k; Framerate: ${ORI_FRAMWRATE} -> ${TARGET_FRAMERATE}; Zoom: ${TARGET_ZOOM_RATIO_MSG}; Quality: ${TARGET_QUALITY_MSG}" >> "$filedir/${OUT_DIR}/$LOG_NAME"
+		ffpb -i "$input" -b:v ${bitrate}k -r ${TARGET_FRAMERATE} -vf "scale=${TARGET_WIDTH}:${TARGET_HEIGHT}" "$output"
 	else
 		echo "低于${TARGET_BITRATE}k, 无需压缩, 默认跳过..."
 		echo "${filename##*/}: ${cutres}k (已跳过)" >> "$filedir/${OUT_DIR}/$LOG_NAME"
