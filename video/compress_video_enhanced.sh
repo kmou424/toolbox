@@ -71,6 +71,18 @@ function compressVideo(){
 			RESOLUTION="height"
 		fi
 		case $TARGET_QUALITY in
+		 sd-|SD-|480p-|480P-)
+			if [ $ORI_RESOLUTION -gt 480 ];then
+				if [ $RESOLUTION == "height" ];then
+					TARGET_WIDTH="480"
+					TARGET_HEIGHT="-1"
+				else
+					TARGET_WIDTH="-1"
+					TARGET_HEIGHT="480"
+				fi
+			fi
+			TARGET_QUALITY_MSG="标清-(480P-)"
+			;;
 		 sd|SD|480p|480P)
 			if [ $ORI_RESOLUTION -gt 480 ];then
 				if [ $RESOLUTION == "width" ];then
@@ -83,6 +95,18 @@ function compressVideo(){
 			fi
 			TARGET_QUALITY_MSG="标清(480P)"
 			;;
+		 hd-|HD-|720p-|720P-)
+			if [ $ORI_RESOLUTION -gt 720 ];then
+				if [ $RESOLUTION == "height" ];then
+					TARGET_WIDTH="720"
+					TARGET_HEIGHT="-1"
+				else
+					TARGET_WIDTH="-1"
+					TARGET_HEIGHT="720"
+				fi
+			fi
+			TARGET_QUALITY_MSG="高清-(720P-)"
+			;;
 		 hd|HD|720p|720P)
 			if [ $ORI_RESOLUTION -gt 720 ];then
 				if [ $RESOLUTION == "width" ];then
@@ -94,6 +118,18 @@ function compressVideo(){
 				fi
 			fi
 			TARGET_QUALITY_MSG="高清(720P)"
+			;;
+		 uhd-|UHD-|1080p-|1080P-)
+			if [ $ORI_RESOLUTION -gt 1080 ];then
+				if [ $RESOLUTION == "height" ];then
+					TARGET_WIDTH="1080"
+					TARGET_HEIGHT="-1"
+				else
+					TARGET_WIDTH="-1"
+					TARGET_HEIGHT="1080"
+				fi
+			fi
+			TARGET_QUALITY_MSG="超清-(1080P-)"
 			;;
 		 uhd|UHD|1080p|1080P)
 			if [ $ORI_RESOLUTION -gt 1080 ];then
