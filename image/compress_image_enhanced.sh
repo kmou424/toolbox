@@ -71,6 +71,9 @@ if [ ! -z $1 ];then
 	if [ $1 = "genconf" ];then
 		echo "compress_image_enhanced: 仅生成配置文件(genconf)"
 		exit 0
+	elif [ $1 = "cleanup" ];then
+		rm -rf $filedir/${OUT_DIR} *.txt *.conf
+		exit 0
 	fi
 fi
 
