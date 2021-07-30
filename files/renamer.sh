@@ -15,10 +15,6 @@ do
 	for file in $(ls *.$format)
 	do
 		COUNT=$[COUNT+1]
-		if [ "$file" = "${COUNT}.${format}" ];then
-			echo "${COUNT}.${format}已存在, 自动跳过重命名"
-		else
-			mv "$file" "${COUNT}.${format}"
-		fi
+		mv "$file" "${COUNT}.${format}"
 	done
 done
