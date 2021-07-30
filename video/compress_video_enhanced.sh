@@ -3,6 +3,8 @@ echo $'TARGET_BITRATE="2500"
 TARGET_FRAMERATE="disable"
 TARGET_ZOOM_RATIO="disable"
 TARGET_QUALITY="disable"
+TARGET_CODEC="libx264"	#libx264 libx265
+TARGET_CODEC_PRESET="medium"	#ultrafast superfast veryfast faster fast medium slow slower veryslow
 INPUT_FORMAT="mp4|mov"
 OUTPUT_FORMAT="mp4"
 LOG_NAME="log_video.txt"
@@ -14,6 +16,8 @@ function loadConf(){
 	TARGET_FRAMERATE="disable"
 	TARGET_ZOOM_RATIO="disable"
 	TARGET_QUALITY="disable"
+	TARGET_CODEC="libx264"
+	TARGET_CODEC_PRESET="medium"
 	INPUT_FORMAT="mp4|mov"
 	OUTPUT_FORMAT="mp4"
 	LOG_NAME="log_video.txt"
@@ -156,6 +160,10 @@ function compressVideo(){
 		TARGET_FRAMERATE="$ORI_FRAMWRATE"
 	fi
 
+	if [ "$TARGET_CODEC" != "libx264" ] || [ "$TARGET_CODEC" != "libx265" ];then
+		TARGET_CODEC="libx264"
+	fi
+
 	cut1=$(ffmpeg -i "$filename" 2>&1 | grep 'bitrate')
 	cut2=${cut1#*bitrate: }
 	cutres=${cut2% *}
@@ -183,11 +191,12 @@ function compressVideo(){
 	echo "视频帧率: ${TARGET_FRAMERATE}fps"
 	echo "缩放比例: ${TARGET_ZOOM_RATIO_MSG}"
 	echo "画质: ${TARGET_QUALITY_MSG}"
+	echo "编码器: ${TARGET_CODEC}"
 	if [[ $cutres -gt $TARGET_BITRATE ]];then
 		echo "大于${TARGET_BITRATE}k, 开始压缩视频..."
 		echo "码率: ${cutres}k -> ${bitrate}k"
 		echo "${filename##*/}: ${cutres}k -> ${bitrate}k; Framerate: ${ORI_FRAMWRATE} -> ${TARGET_FRAMERATE}; Zoom: ${TARGET_ZOOM_RATIO_MSG}; Quality: ${TARGET_QUALITY_MSG}" >> "$filedir/${OUT_DIR}/$LOG_NAME"
-		ffpb -i "$input" -b:v ${bitrate}k -r ${TARGET_FRAMERATE} -vf "scale=${TARGET_WIDTH}:${TARGET_HEIGHT}" "$output"
+		ffpb -i "$input" -b:v ${bitrate}k -r ${TARGET_FRAMERATE} -vf "scale=${TARGET_WIDTH}:${TARGET_HEIGHT}" -c:v ${TARGET_CODEC} -preset ${TARGET_CODEC_PRESET} "$output"
 	else
 		echo "低于${TARGET_BITRATE}k, 无需压缩, 默认跳过..."
 		echo "${filename##*/}: ${cutres}k (已跳过)" >> "$filedir/${OUT_DIR}/$LOG_NAME"
