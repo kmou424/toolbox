@@ -12,10 +12,10 @@ function loadConf(){
 	OUTPUT_FORMAT="jpg"
 	LOG_NAME="log_image.txt"
 	OUT_DIR="out"
-	if [[ -f "$PWD/toolbox_image.conf" ]];then
-			. "$PWD/toolbox_image.conf"
+	if [[ -f "$PWD/toolbox_image_recode.conf" ]];then
+			. "$PWD/toolbox_image_recode.conf"
 	else
-			createConf "$PWD/toolbox_image.conf"
+			createConf "$PWD/toolbox_image_recode.conf"
 	fi
 }
 

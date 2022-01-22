@@ -69,7 +69,7 @@ loadConf
 
 if [ ! -z $1 ];then
 	if [ $1 = "genconf" ];then
-		echo "compress_video_enhanced: 仅生成配置文件(genconf)"
+		echo "recode_video: 仅生成配置文件(genconf)"
 		exit 0
 	fi
 fi
