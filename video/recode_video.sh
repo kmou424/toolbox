@@ -1,5 +1,6 @@
 function createConf(){
-echo $'TARGET_CODEC="libx264"
+echo $'TARGET_CODEC="libx264"	#libx264 libx265
+TARGET_CODEC_PRESET="medium"	#ultrafast superfast veryfast faster fast medium slow slower veryslow
 INPUT_FORMAT="mp4|mov"
 OUTPUT_FORMAT="mp4"
 OUT_DIR="out"' >> "$1"
@@ -7,6 +8,7 @@ OUT_DIR="out"' >> "$1"
 
 function loadConf(){
 	TARGET_CODEC="libx264"
+	TARGET_CODEC_PRESET="medium"
 	INPUT_FORMAT="mp4|mov"
 	OUTPUT_FORMAT="mp4"
 	OUT_DIR="out"
@@ -36,7 +38,7 @@ function compressVideo(){
 	echo "输入文件名: ${filename}"
 	echo "输出文件名: ${cutfile%.*}.${OUTPUT_FORMAT}"
 	echo "输出位置: ${filedir}/${OUT_DIR}"
-	ffpb -i "$input" -vcodec $TARGET_CODEC -pix_fmt yuv420p -acodec copy "$output"
+	ffpb -i "$input" -c:v $TARGET_CODEC -preset ${TARGET_CODEC_PRESET} -c:a copy "$output"
 	echo
 
 	cd "$WORKDIR"
